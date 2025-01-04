@@ -9,6 +9,10 @@ router = APIRouter(tags=["healthchecker"])
 
 @router.get("/healthchecker", summary="Checking App Health")
 async def healthchecker(db: AsyncSession = Depends(get_db)):
+    """
+    Health app checker
+    """
+
     try:
         # make async call to db
         result = await db.execute(text("SELECT 1"))

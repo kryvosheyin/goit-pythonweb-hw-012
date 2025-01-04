@@ -22,12 +22,27 @@ conf = ConnectionConfig(
 )
 
 
-async def send_email(email: EmailStr, username: str, host: str):
+async def send_email(to_email: EmailStr, username: str, host: str) -> None:
+    """
+    Confirmation email to user.
+
+    Args:
+        to_email (EmailStr): User email
+        username (str): Username
+        host (str): Host
+
+    Returns:
+        None
+
+    Raises:
+        If there is an error sending the email.
+    """
+
     try:
-        token_verification = create_email_token({"sub": email})
+        token_verification = create_email_token({"sub": to_email})
         message = MessageSchema(
             subject="Confirm your email",
-            recipients=[email],
+            recipients=[to_email],
             template_body={
                 "host": host,
                 "username": username,
@@ -38,5 +53,40 @@ async def send_email(email: EmailStr, username: str, host: str):
 
         fm = FastMail(conf)
         await fm.send_message(message, template_name="verify_email.html")
+    except ConnectionErrors as err:
+        print(err)
+
+
+async def send_password_email(
+    to_email: EmailStr, username: str, host: str, token: str
+) -> None:
+    """
+    Update password email
+
+    Args:
+        to_email (EmailStr): User email
+        username (str): Username
+        host (str): Host
+        token (str): Reset token
+
+    Returns:
+        None
+
+    Raises:
+        If there is an error sending the email
+    """
+
+    try:
+        reset_link = f"{host}api/auth/update_password/{token}"
+
+        message = MessageSchema(
+            subject="Important: Update your account information",
+            recipients=[to_email],
+            template_body={"reset_link": reset_link, "username": username},
+            subtype=MessageType.html,
+        )
+
+        fm = FastMail(conf)
+        await fm.send_message(message, template_name="update_password.html")
     except ConnectionErrors as err:
         print(err)

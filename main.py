@@ -9,7 +9,7 @@ from src.api import auth, contacts, users, utils
 app = FastAPI()
 
 
-origins = ["http://localhost:8000"]
+origins = ["http://localhost:*", "*"]
 
 
 app.add_middleware(
@@ -23,10 +23,21 @@ app.add_middleware(
 
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    """
+    Rate Limit Handler.
+
+    Args:
+        request: Request;
+        exc: RateLimitExceeded
+
+    Returns:
+        JSONResponse
+    """
+
     logger.warning(f"Rate limit exceeded for '{request.client.host}' host.")
     return JSONResponse(
         status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-        content={"error": "Exceeded number of attempts, please try again later."},
+        content={"error": "Перевищено ліміт запитів. Спробуйте пізніше."},
     )
 
 

@@ -20,6 +20,10 @@ limiter = Limiter(key_func=get_remote_address)
 )
 @limiter.limit("10 per minute")
 async def me(request: Request, user: User = Depends(get_current_user)):
+    """
+    Fetch information about current user
+    """
+
     return user
 
 
@@ -29,6 +33,10 @@ async def update_avatar_user(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Update user avatar
+    """
+
     avatar_url = UploadFileService(
         settings.CLD_NAME, settings.CLD_API_KEY, settings.CLD_API_SECRET
     ).upload_file(file, user.username)

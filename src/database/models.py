@@ -1,14 +1,38 @@
 from datetime import datetime, date
-from sqlalchemy import Integer, String, func, Column, ForeignKey
+from enum import Enum
+from sqlalchemy import Integer, String, func, Column, ForeignKey, Enum as AEnum
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql.sqltypes import Boolean, Date, DateTime
 
 
 class Base(DeclarativeBase):
+    """
+    Base model
+    """
+
     pass
 
 
 class Contact(Base):
+    """
+    Contact model
+
+    Inherits Base (DeclarativeBase): Base model from declarative base SQLAlchemy
+
+    Attributes:
+        id (int): Contact ID
+        firstname (str): Contact first name
+        lastname (str): Contact last name
+        birthday (date): Contact birthdate
+        email (str): Contact email
+        phonenumber (str): Contact phone number
+        info (str): Contact information
+        created_at (datetime): Time creation contact
+        updated_at (datetime): Time updated contact
+        user_id (int): The foreign key referencing the user who owns the contact
+        user (User): Contact user
+    """
+
     __tablename__ = "contacts"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -30,7 +54,32 @@ class Contact(Base):
     user = relationship("User", backref="contacts")
 
 
+class UserRole(str, Enum):
+    """
+    Enum for User roles
+    """
+
+    USER = "user"
+    ADMIN = "admin"
+
+
 class User(Base):
+    """
+    User model
+
+    Inherits Base (DeclarativeBase): Base model from declarative base SQLAlchemy
+
+    Attributes:
+        id (int): User ID
+        username (str): User username
+        email (str): User email
+        hashed_password (str): User hashed password
+        avatar (str): User avatar
+        is_confirmed (bool): Whether the user has confirmed their email
+        created_at (datetime): Time user creation
+        role (UserRole): User role
+    """
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
@@ -40,3 +89,4 @@ class User(Base):
     avatar = Column(String(255), nullable=True)
     is_confirmed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
+    role = Column(AEnum(UserRole), default=UserRole.USER, nullable=False)
