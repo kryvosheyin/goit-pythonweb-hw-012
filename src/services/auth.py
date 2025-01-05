@@ -141,7 +141,7 @@ async def get_email_from_token(token: str) -> str:
     except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=constants.WRONG_TOKEN,
+            detail=constants.INVALID_TOKEN,
         )
 
 
@@ -156,5 +156,5 @@ async def get_password_from_token(token: str) -> str:
     except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=constants.WRONG_TOKEN,
+            detail=constants.INVALID_TOKEN,
         )

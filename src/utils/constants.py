@@ -13,4 +13,4 @@ USER_EMAIL_ALREADY_EXISTS = "A user with this email already exists in the system
 USER_NAME_ALREADY_EXISTS = "A user with this username already exists in the system."
 USER_NOT_CONFIRMED = "The user account has not been confirmed yet."
 USER_WITH_SUCH_EMAIL_NOT_FOUND = "No user associated with this email address was found."
-WRONG_TOKEN = "The token provided is incorrect."
+INVALID_TOKEN = "The token provided is incorrect."

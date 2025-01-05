@@ -127,7 +127,7 @@ async def request_email(
     return {"message": constants.CHECK_YOUR_EMAIL}
 
 
-@router.post("/update_password", summary="Update password")
+@router.post("/update_password", summary="Reset user password")
 async def update_password_request(
     body: UpdatePassword,
     background_tasks: BackgroundTasks,
@@ -162,7 +162,7 @@ async def update_password_request(
     return {"message": "Check your email for confirmation letter."}
 
 
-@router.get("/confirm_update_password/{token}", summary="Password confirmation")
+@router.get("/confirm_password_reset/{token}", summary="Password confirmation")
 async def confirm_update_password(token: str, db: AsyncSession = Depends(get_db)):
     """
     Confirmation update user password
