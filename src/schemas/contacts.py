@@ -80,6 +80,19 @@ class UserCreate(BaseModel):
     role: UserRole
 
 
+class UserOut(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+    avatar: Optional[str] = None
+    is_confirmed: bool
+    created_at: datetime
+    role: UserRole
+
+    class Config:
+        from_attributes = True  # Pydantic v2 equivalent of `orm_mode`
+
+
 class Token(BaseModel):
     """
     Token model

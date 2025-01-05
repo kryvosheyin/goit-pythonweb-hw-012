@@ -45,7 +45,12 @@ async def fetch_contacts(
 
     contact_service = ContactService(db)
     contacts = await contact_service.fetch_contacts(
-        firstname, lastname, email, skip, limit, user
+        firstname=firstname,
+        lastname=lastname,
+        email=email,
+        skip=skip,
+        limit=limit,
+        user=user,
     )
     return contacts
 

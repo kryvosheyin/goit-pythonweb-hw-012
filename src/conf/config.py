@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     USE_CREDENTIALS: bool = True
     VALIDATE_CERTS: bool = True
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+
     CLD_NAME: str
     CLD_API_KEY: int
     CLD_API_SECRET: str

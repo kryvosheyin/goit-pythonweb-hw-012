@@ -90,3 +90,12 @@ class User(Base):
     is_confirmed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
     role = Column(AEnum(UserRole), default=UserRole.USER, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "avatar": self.avatar,
+            "role": self.role,
+        }
