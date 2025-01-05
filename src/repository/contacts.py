@@ -27,7 +27,7 @@ class ContactsRepository:
     ) -> List[Contact]:
 
         if not user:
-            logger.info("Not Found user in database")
+            logger.info("User not found in database")
             return []
 
         stmt = (
@@ -44,13 +44,19 @@ class ContactsRepository:
 
     async def get_contact_by_id(self, contact_id: int, user: User) -> Contact | None:
 
-        stmt = select(Contact).filter(id=contact_id).filter(Contact.user_id == user.id)
+        stmt = (
+            select(Contact).filter_by(id=contact_id).filter(Contact.user_id == user.id)
+        )
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
     async def create_contact(self, body: ContactModel, user: User) -> Contact:
 
+        logger.info(type(user))
+
         contact = Contact(**body.model_dump(exclude_unset=True), user=user)
+        contact.user_id = user.id
+
         self.db.add(contact)
         await self.db.commit()
         await self.db.refresh(contact)
@@ -74,7 +80,8 @@ class ContactsRepository:
         if contact:
             await self.db.delete(contact)
             await self.db.commit()
-        return contact
+            return contact
+        return None
 
     async def is_contact(self, email: str, phonenumber: str, user: User) -> bool:
 

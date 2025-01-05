@@ -69,7 +69,7 @@ async def get_user_from_db(
     user_data = await redis.get(f"user:{username}")
     if user_data:
         logger.info(f"Found user in Redis cache: {username}")
-        return UserOut(**json.loads(user_data))
+        return User(**json.loads(user_data))
 
     # If not found in Redis, query the database
     logger.info(f"User not found in Redis cache: {username}. Querying database...")
@@ -78,11 +78,11 @@ async def get_user_from_db(
 
     # If not found in Redis, query the database
     if user:
-        user_dict = {key: getattr(user, key) for key in user.__table__.columns.keys()}
-        user_data = UserOut.model_validate(user_dict).model_dump_json()
+        user_data = json.dumps(user.to_dict())
         await redis.set(f"user:{username}", user_data)
+        return user
 
-    return user
+    return None
 
 
 async def get_current_user(
