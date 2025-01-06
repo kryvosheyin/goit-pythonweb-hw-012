@@ -52,3 +52,5 @@ pytest --cov=src tests/ --cov-report=html
 ```
 
 Access to swagger : http://localhost:8000/docs
+
+![alt text](image.png)
