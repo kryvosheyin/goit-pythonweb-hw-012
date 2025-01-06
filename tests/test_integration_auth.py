@@ -34,6 +34,12 @@ unique_account_data = {
 
 
 def test_signup(client, monkeypatch):
+    """
+    Tests the user registration endpoint.
+
+    Asserts that a new user is created with the correct information and that the
+    hashed password is not returned in the response.
+    """
     mock = Mock()
     monkeypatch.setattr("src.api.auth.send_email", mock)
     response = client.post("api/auth/register", json=account_info)
@@ -47,6 +53,10 @@ def test_signup(client, monkeypatch):
 
 
 def test_register_with_existing_email(client, monkeypatch):
+    """
+    Tests that attempting to register with an existing email address results in
+    a 409 status response with the correct error message.
+    """
     mock = Mock()
     monkeypatch.setattr("src.api.auth.send_email", mock)
     response = client.post("api/auth/register", json=account_info)
@@ -55,6 +65,10 @@ def test_register_with_existing_email(client, monkeypatch):
 
 
 def test_register_with_existing_username(client, monkeypatch):
+    """
+    Tests that attempting to register with an existing username results in a
+    409 status response with the correct error message.
+    """
     mock = Mock()
     monkeypatch.setattr("src.api.auth.send_email", mock)
     response = client.post("api/auth/register", json=unique_email_account)
@@ -63,6 +77,10 @@ def test_register_with_existing_username(client, monkeypatch):
 
 
 def test_register_with_duplicate_email(client, monkeypatch):
+    """
+    Tests that attempting to register with a duplicate email address results in
+    a 409 status response with the correct error message.
+    """
     mock = Mock()
     monkeypatch.setattr("src.api.auth.send_email", mock)
     response = client.post("api/auth/register", json=account_info)
@@ -77,6 +95,10 @@ def test_register_with_duplicate_email(client, monkeypatch):
 
 
 def test_login_with_unconfirmed_account(client):
+    """
+    Tests that attempting to login with an unconfirmed account results in a
+    401 status response with the correct error message.
+    """
     response = client.post(
         "api/auth/login",
         data={
@@ -91,6 +113,11 @@ def test_login_with_unconfirmed_account(client):
 
 @pytest.mark.asyncio
 async def test_login(client):
+    """
+    Tests the login endpoint.
+
+    Asserts that a confirmed user can log in and obtain a valid access token.
+    """
     async with TestingSessionLocal() as session:
         user = await session.execute(
             select(User).where(User.email == account_info.get("email"))
@@ -114,6 +141,10 @@ async def test_login(client):
 
 
 def test_login_with_wrong_password(client):
+    """
+    Tests that attempting to login with an incorrect password results in a
+    401 status response with the correct error message.
+    """
     response = client.post(
         "api/auth/login",
         data={"username": account_info.get("username"), "password": "wrongpassword"},
@@ -124,6 +155,10 @@ def test_login_with_wrong_password(client):
 
 
 def test_login_with_wrong_username(client):
+    """
+    Tests that attempting to login with an incorrect username results in a
+    401 status response with the correct error message.
+    """
     response = client.post(
         "api/auth/login",
         data={"username": "invaliduser", "password": account_info.get("password")},
@@ -134,6 +169,11 @@ def test_login_with_wrong_username(client):
 
 
 def test_login_with_validation_error(client):
+    """
+    Tests that attempting to login without providing a username results
+    in a 422 status response, indicating a validation error.
+    """
+
     response = client.post(
         "api/auth/login", data={"password": account_info.get("password")}
     )
@@ -149,6 +189,15 @@ def test_login_with_validation_error(client):
 
 @pytest.mark.asyncio
 async def test_confirm_email(client, monkeypatch):
+    """
+    Tests the email confirmation process.
+
+    Verifies that a user's email address can be successfully confirmed if the user
+    is not already confirmed. Mocks the email extraction from the token and the
+    user service to simulate an unconfirmed user and asserts the correct confirmation
+    message and status code are returned.
+    """
+
     test_token = "sample_valid_token"
 
     async_mock = AsyncMock(return_value="johndoe@example.com")
@@ -176,6 +225,10 @@ async def test_confirm_email(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_email_already_confirmed(client, monkeypatch):
+    """
+    Tests that attempting to confirm an email address that is already confirmed
+    results in a 200 status response with the correct confirmation message.
+    """
     async_mock = AsyncMock(return_value="johndoe@example.com")
     monkeypatch.setattr("src.services.auth.get_email_from_token", async_mock)
     mock = Mock()
@@ -196,6 +249,23 @@ async def test_email_already_confirmed(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_confirm_update_password(client, monkeypatch):
+    """
+    Test the password update confirmation process.
+
+    This test verifies that the password update confirmation endpoint correctly
+    updates a user's password when provided with a valid token. It mocks the
+    token decoding process and the user service to simulate a successful password
+    update scenario.
+
+    Steps:
+    - Mocks the functions to retrieve email and password from a token.
+    - Mocks the user service to return a user object when queried by email.
+    - Simulates a client request to the password update confirmation endpoint.
+    - Asserts that the response status code is 200 and the message indicates
+      that the password has been changed.
+    - Verifies that the mocked functions are called with the expected arguments.
+    """
+
     async_mock = AsyncMock(return_value="johndoe@example.com")
     mock_from_token = AsyncMock(return_value="new_hashed_password")
     monkeypatch.setattr("src.services.auth.get_email_from_token", async_mock)
@@ -222,6 +292,19 @@ async def test_confirm_update_password(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_update_password_invalid_or_expired_token(client, monkeypatch):
+    """
+    Tests the password update confirmation endpoint with an invalid or expired token.
+
+    Verifies that the endpoint correctly returns a 400 status code and the
+    appropriate error message when provided with an invalid or expired token.
+
+    Steps:
+    - Mocks the functions to retrieve email and password from a token.
+    - Simulates a client request to the password update confirmation endpoint.
+    - Asserts that the response status code is 400 and the message indicates
+      that the token is invalid or expired.
+    - Verifies that the mocked functions are called with the expected arguments.
+    """
     async_mock = AsyncMock(return_value=None)
     mock_get_password_from_token = AsyncMock(return_value=None)
     monkeypatch.setattr("src.services.auth.get_email_from_token", async_mock)

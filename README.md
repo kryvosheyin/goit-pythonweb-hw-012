@@ -34,17 +34,21 @@ CLD_API_SECRET=
 To run the application use the following commands
 
 ```
-docker compose up
-
 poetry install
 
 poetry shell
 
+poetry add sphinx -G dev
+
+make html
+
+docker compose up --build
+
 alembic upgrade head
 
-fastapi dev main.py
+pytest --cov=src tests/ --cov-report=html
+
+
 ```
 
 Access to swagger : http://localhost:8000/docs
-
-![alt text](image-1.png)

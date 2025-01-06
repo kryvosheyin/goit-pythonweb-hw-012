@@ -6,25 +6,28 @@ from src.database.models import User
 
 
 class UserRepository:
+    """
+    Repository for handling database operations related to users.
+    """
+
     def __init__(self, session: AsyncSession):
         """
-        Init UserRepository
+        Initialize user repository
 
         Args:
-            session (AsyncSession): An AsyncSession object connected to the database
+            session (AsyncSession): SQLAlchemy async session
         """
-
         self.db = session
 
     async def get_user_by_id(self, user_id: int) -> User | None:
         """
-        Fetch user by ID
+        Fetch user by user ID.
 
         Args:
-            user_id (int): user ID
+            user_id (int): User ID to fetch.
 
         Returns:
-            User
+            User: The fetched user if found, otherwise None.
         """
 
         stmt = select(User).filter_by(id=user_id)

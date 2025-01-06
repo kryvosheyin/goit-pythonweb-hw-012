@@ -51,6 +51,14 @@ payload = {
 
 @pytest.mark.asyncio
 async def test_fetch_upcoming_birthdays(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/birthdays" endpoint returns a list of contacts with upcoming birthdays.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Asserts that the response status is 200 and that the response body is a list of contacts.
+    Asserts that the first contact in the list has the correct name.
+    Asserts that the service function was called with the correct parameters.
+    """
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
     async_mock = AsyncMock(return_value=account_info)
@@ -69,6 +77,15 @@ async def test_fetch_upcoming_birthdays(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_fetch_upcoming_birthdays_unauthenticated(client, monkeypatch):
+    """
+    Tests that the "/birthdays" endpoint returns a 401 status code and a "Not authenticated" message
+    when the request is not authenticated.
+
+    Mocks the JWT decoding to raise an exception.
+    Asserts that the response status is 401 and that the response body is a dictionary with a "detail"
+    key containing the string "Not authenticated".
+    """
+
     mock = AsyncMock(
         side_effect=HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -83,6 +100,14 @@ async def test_fetch_upcoming_birthdays_unauthenticated(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_fetch_contacts_without_filters(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts" endpoint returns a list of all contacts when no filters are applied.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Asserts that the response status is 200 and that the response body is a list of contacts.
+    Asserts that the first contact in the list has the correct email.
+    Asserts that the service function was called with the correct parameters.
+    """
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
     async_mock = AsyncMock(return_value=account_info)
@@ -102,6 +127,16 @@ async def test_fetch_contacts_without_filters(client, monkeypatch, auth_headers)
 
 @pytest.mark.asyncio
 async def test_fetch_contacts_with_filters(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts" endpoint returns the filtered list of contacts
+    when firstname and lastname filters are applied.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Asserts that the response status is 200 and that the response body contains
+    the contact matching the filters.
+    Asserts that the service function was called with the correct filter parameters.
+    """
+
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
 
@@ -136,6 +171,17 @@ async def test_fetch_contacts_with_filters(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_fetch_contacts_pagination(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts" endpoint returns a paginated list of contacts
+    when skip and limit query parameters are applied.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Asserts that the response status is 200 and that the response body
+    contains the paginated contact.
+    Asserts that the service function was called with the correct
+    pagination parameters.
+    """
+
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
 
@@ -178,6 +224,14 @@ async def test_fetch_contacts_pagination(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_fetch_contacts_unauthenticated(client, monkeypatch):
+    """
+    Tests that the "/contacts" endpoint returns a 401 status code and a "Not authenticated" message
+    when the request is not authenticated.
+
+    Mocks the JWT decoding to raise an exception.
+    Asserts that the response status is 401 and that the response body is a dictionary with a "detail"
+    key containing the string "Not authenticated".
+    """
     mock = AsyncMock(
         side_effect=HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -192,6 +246,16 @@ async def test_fetch_contacts_unauthenticated(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_fetch_contact(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint returns the correct contact details.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Mocks the contact retrieval by ID to return a specific contact.
+    Asserts that the response status is 200 and that the returned contact details
+    match the expected contact data.
+    Asserts that the service function was called with the correct contact ID and user details.
+    """
+
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
 
@@ -216,6 +280,18 @@ async def test_fetch_contact(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_fetch_contact_not_found(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint returns a 404 status code
+    and a "Contact not found" message when the contact ID is not found in the
+    database.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Mocks the contact retrieval by ID to return None.
+    Asserts that the response status is 404 and that the response body is a
+    dictionary with a "detail" key containing the string "Contact not found".
+    Asserts that the service function was called with the correct contact ID and
+    user details.
+    """
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
     mock_from_db = AsyncMock(return_value=account_info)
@@ -232,6 +308,14 @@ async def test_fetch_contact_not_found(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_fetch_contact_unauthenticated(client, monkeypatch):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint returns a 401 status code
+    and a "Not authenticated" message when the request is not authenticated.
+
+    Mocks the JWT decoding to raise an exception.
+    Asserts that the response status is 401 and that the response body is a
+    dictionary with a "detail" key containing the string "Not authenticated".
+    """
     mock = AsyncMock(
         side_effect=HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -246,6 +330,16 @@ async def test_fetch_contact_unauthenticated(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_create_new_contact(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/" endpoint creates a new contact and returns a 201
+    status code and the newly created contact in the response body.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Mocks the contact creation to return the first contact in the contacts list.
+    Asserts that the response status is 201 and that the response body is a
+    dictionary with the correct contact details.
+    Asserts that the service function was called with the correct parameters.
+    """
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
     mock_from_db = AsyncMock(return_value=account_info)
@@ -266,6 +360,16 @@ async def test_create_new_contact(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_create_contact_with_incorrect_data(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/" endpoint returns a 422 status code and a
+    dictionary with a "detail" key when attempting to create a new contact
+    with incorrect data.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Asserts that the response status is 422 and that the response body is a
+    dictionary with the "detail" key.
+    """
+
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
     mock_from_db = AsyncMock(return_value=account_info)
@@ -282,6 +386,14 @@ async def test_create_contact_with_incorrect_data(client, monkeypatch, auth_head
 
 @pytest.mark.asyncio
 async def test_create_new_contact_unauthenticated(client, monkeypatch):
+    """
+    Tests that the "/contacts/" endpoint returns a 401 status code and a "Not authenticated" message
+    when attempting to create a new contact without being authenticated.
+
+    Mocks the JWT decoding to raise an exception.
+    Asserts that the response status is 401 and that the response body is a dictionary with a "detail"
+    key containing the string "Not authenticated".
+    """
     mock = AsyncMock(
         side_effect=HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -296,6 +408,17 @@ async def test_create_new_contact_unauthenticated(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_update_contact(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint updates a contact and returns a 200
+    status code and the updated contact in the response body.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Mocks the contact update to return the updated contact.
+    Asserts that the response status is 200 and that the returned contact details
+    match the expected contact data.
+    Asserts that the service function was called with the correct contact ID,
+    updated contact model and user details.
+    """
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
     mock_from_db = AsyncMock(return_value=account_info)
@@ -331,6 +454,16 @@ async def test_update_contact(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_update_contact_not_found(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint returns a 404 status code and a "Contact not found" message
+    when attempting to update a contact that does not exist.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Mocks the contact update to return None.
+    Asserts that the response status is 404 and that the response body is a dictionary with a "detail"
+    key containing the string "Contact not found".
+    Asserts that the service function was called with the correct contact ID, updated contact model and user details.
+    """
     mock_jwt_decode = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt_decode)
     mock_get_user_from_db = AsyncMock(return_value=account_info)
@@ -356,6 +489,14 @@ async def test_update_contact_not_found(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_update_contact_with_incorrect_data(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint returns a 422 status code and a dictionary with a "detail"
+    key when attempting to update a contact with incorrect data.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Asserts that the response status is 422 and that the response body is a dictionary with a "detail" key.
+    """
+
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
     mock_from_db = AsyncMock(return_value=account_info)
@@ -370,6 +511,14 @@ async def test_update_contact_with_incorrect_data(client, monkeypatch, auth_head
 
 @pytest.mark.asyncio
 async def test_update_contact_unauthenticated(client, monkeypatch):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint returns a 401 status code and a "Not authenticated" message
+    when attempting to update a contact without being authenticated.
+
+    Mocks the JWT decoding to raise an exception.
+    Asserts that the response status is 401 and that the response body is a dictionary with a "detail" key
+    containing the string "Not authenticated".
+    """
     mock = AsyncMock(
         side_effect=HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -384,6 +533,15 @@ async def test_update_contact_unauthenticated(client, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_delete_contact(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint deletes a contact and returns a 200
+    status code and a dictionary with a "message" key containing a success message.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Mocks the contact deletion to return a dictionary with a "message" key.
+    Asserts that the response status is 200 and that the returned message matches the expected message.
+    Asserts that the service function was called with the correct contact ID and user details.
+    """
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
 
@@ -411,6 +569,19 @@ async def test_delete_contact(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_delete_contact_not_found(client, monkeypatch, auth_headers):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint returns a 404 status code
+    and a "Contact not found" message when attempting to delete a contact that
+    does not exist.
+
+    Mocks the JWT decoding and the user retrieval from the database.
+    Mocks the contact deletion to return None.
+    Asserts that the response status is 404 and that the response body is a
+    dictionary with a "detail" key containing the string "Contact not found".
+    Asserts that the service function was called with the correct contact ID and
+    user details.
+    """
+
     mock_jwt = MagicMock(return_value={"sub": account_info["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
     mock_from_db = AsyncMock(return_value=account_info)
@@ -429,6 +600,15 @@ async def test_delete_contact_not_found(client, monkeypatch, auth_headers):
 
 @pytest.mark.asyncio
 async def test_delete_contact_unauthenticated(client, monkeypatch):
+    """
+    Tests that the "/contacts/{contact_id}" endpoint returns a 401 status code
+    and a "Not authenticated" message when attempting to delete a contact without
+    being authenticated.
+
+    Mocks the JWT decoding to raise an exception.
+    Asserts that the response status is 401 and that the response body is a
+    dictionary with a "detail" key containing the string "Not authenticated".
+    """
     mock = AsyncMock(
         side_effect=HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

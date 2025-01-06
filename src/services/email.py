@@ -23,7 +23,14 @@ conf = ConnectionConfig(
 
 
 async def send_email(to_email: EmailStr, username: str, host: str) -> None:
+    """
+    Sends an email to a user to confirm their email address.
 
+    Args:
+        to_email: The email address of the user to receive the email.
+        username: The username of the user to personalize the email.
+        host: The host of the application to link the user to the verification endpoint.
+    """
     try:
         token_verification = create_email_token({"sub": to_email})
         message = MessageSchema(
@@ -46,6 +53,16 @@ async def send_email(to_email: EmailStr, username: str, host: str) -> None:
 async def send_password_email(
     to_email: EmailStr, username: str, host: str, reset_token: str
 ) -> None:
+    """
+    Sends an email to a user to reset their password.
+
+    Args:
+        to_email: The email address of the user to receive the email.
+        username: The username of the user to personalize the email.
+        host: The host of the application to link the user to the verification endpoint.
+        reset_token: The token to be used for password reset.
+
+    """
 
     try:
         reset_link = f"{host}api/auth/confirm_password_reset/{reset_token}"

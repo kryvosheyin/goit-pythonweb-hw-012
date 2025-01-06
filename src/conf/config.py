@@ -1,3 +1,6 @@
+"""
+Configuration for the application."""
+
 from pydantic import ConfigDict, EmailStr
 from pydantic_settings import BaseSettings
 

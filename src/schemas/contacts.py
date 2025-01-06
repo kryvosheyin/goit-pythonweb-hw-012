@@ -6,6 +6,9 @@ from src.database.models import UserRole
 
 
 class ContactModel(BaseModel):
+    """
+    Contact model
+    """
 
     firstname: str = Field(min_length=2, max_length=50)
     lastname: str = Field(min_length=2, max_length=50)
@@ -16,6 +19,9 @@ class ContactModel(BaseModel):
 
 
 class ContactResponseModel(ContactModel):
+    """
+    Contact response model
+    """
 
     id: int
     created_at: datetime
@@ -24,11 +30,17 @@ class ContactResponseModel(ContactModel):
 
 
 class MessageResponse(BaseModel):
+    """
+    Message response model
+    """
 
     message: str
 
 
 class User(BaseModel):
+    """
+    User model
+    """
 
     id: int
     username: str
@@ -40,6 +52,9 @@ class User(BaseModel):
 
 
 class UserCreate(BaseModel):
+    """
+    User create model
+    """
 
     username: str
     email: EmailStr
@@ -48,6 +63,10 @@ class UserCreate(BaseModel):
 
 
 class UserOut(BaseModel):
+    """
+    User out model
+    """
+
     id: int
     username: str
     email: EmailStr
@@ -61,17 +80,26 @@ class UserOut(BaseModel):
 
 
 class Token(BaseModel):
+    """
+    Token model
+    """
 
     access_token: str
     token_type: str
 
 
 class RequestEmail(BaseModel):
+    """
+    Request email model
+    """
 
     email: EmailStr
 
 
 class UpdatePassword(BaseModel):
+    """
+    Update password model
+    """
 
     email: EmailStr
     password: str = Field(min_length=4, max_length=128)

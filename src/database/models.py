@@ -75,8 +75,8 @@ class User(Base):
         email (str): User email
         hashed_password (str): User hashed password
         avatar (str): User avatar
-        is_confirmed (bool): Whether the user has confirmed their email
-        created_at (datetime): Time user creation
+        is_confirmed (bool): User confirmation status
+        created_at (datetime): Time creation user
         role (UserRole): User role
     """
 

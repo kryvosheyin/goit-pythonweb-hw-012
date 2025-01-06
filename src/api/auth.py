@@ -31,7 +31,19 @@ async def register_user(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    User registration
+    Register a new user.
+
+    Args:
+        user_data (UserCreate): The data for creating a new user.
+        background_tasks (BackgroundTasks): Background tasks for asynchronous execution.
+        request (Request): The HTTP request object.
+        db (AsyncSession): The database session dependency.
+
+    Returns:
+        User: The newly created user.
+
+    Raises:
+        HTTPException: If the email or username already exists.
     """
 
     user_service = UserService(db)
@@ -63,7 +75,17 @@ async def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
 ):
     """
-    User authentication
+    Authenticate a user and return an access token.
+
+    Args:
+        form_data (OAuth2PasswordRequestForm): The form data containing the username and password.
+        db (AsyncSession): The database session dependency.
+
+    Returns:
+        dict: A dictionary containing the access token and token type.
+
+    Raises:
+        HTTPException: If the username or password is incorrect, or if the user is not confirmed.
     """
 
     user_service = UserService(db)
@@ -88,9 +110,17 @@ async def login_user(
 @router.get("/confirmed_email/{token}", summary="Email confirmation")
 async def confirmed_email(token: str, db: AsyncSession = Depends(get_db)):
     """
-    User email confirmation
-    """
+    Email confirmation endpoint.
 
+    Args:
+        token (str): The verification token.
+
+    Returns:
+        dict: A dictionary containing a message.
+
+    Raises:
+        HTTPException: If the token is invalid or if the user is not found.
+    """
     email = await get_email_from_token(token)
     user_service = UserService(db)
     user = await user_service.get_user_by_email(email)
@@ -112,9 +142,20 @@ async def request_email(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Request user email confirmation
-    """
+    Request email endpoint.
 
+    Args:
+        body (RequestEmail): The request email object.
+        background_tasks (BackgroundTasks): The background tasks object.
+        request (Request): The request object.
+        db (AsyncSession): The database session dependency.
+
+    Returns:
+        dict: A dictionary containing a message.
+
+    Raises:
+        HTTPException: If the email is already confirmed.
+    """
     user_service = UserService(db)
     user = await user_service.get_user_by_email(body.email)
 
@@ -135,7 +176,22 @@ async def update_password_request(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Request update user password
+    Handle a request to reset a user's password.
+
+    This endpoint generates a password reset token and sends an email to the user
+    with a link to confirm the password reset.
+
+    Args:
+        body (UpdatePassword): The request body containing the user's email and new password.
+        background_tasks (BackgroundTasks): The background tasks object to handle asynchronous email sending.
+        request (Request): The HTTP request object, used to construct the reset email link.
+        db (AsyncSession): The database session dependency.
+
+    Returns:
+        dict: A message indicating that a confirmation email has been sent.
+
+    Raises:
+        HTTPException: If the user's email is not confirmed.
     """
 
     user_service = UserService(db)
@@ -165,9 +221,17 @@ async def update_password_request(
 @router.get("/confirm_password_reset/{token}", summary="Password confirmation")
 async def confirm_update_password(token: str, db: AsyncSession = Depends(get_db)):
     """
-    Confirmation update user password
-    """
+    Password confirmation endpoint.
 
+    Args:
+        token (str): The verification token.
+
+    Returns:
+        dict: A dictionary containing a message.
+
+    Raises:
+        HTTPException: If the token is invalid or if the user is not found.
+    """
     email = await get_email_from_token(token)
     password = await get_password_from_token(token)
 

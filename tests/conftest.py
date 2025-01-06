@@ -60,11 +60,26 @@ unique_account_data = {
 
 @pytest.fixture
 def user():
+    """
+    Fixture providing a test user.
+
+    Returns:
+        User: A User object with the ID 1, username "testuser", and role "user".
+    """
     return User(id=1, username="testuser", role="user")
 
 
 @pytest.fixture
 def contact(user: User):
+    """
+    Fixture providing a test contact.
+
+    Returns:
+        Contact: A Contact object with the ID 1, firstname "Alex", lastname "Kryvosheyin",
+                 email "alex@test.com", phonenumber "1234567890", birthday "1987-10-24",
+                 and the user from the user fixture.
+    """
+
     return Contact(
         id=1,
         firstname="Alex",
@@ -78,11 +93,24 @@ def contact(user: User):
 
 @pytest.fixture
 def empty_contact():
+    """
+    Fixture providing an empty contact.
+
+    Returns:
+        None: The empty contact.
+    """
     return None
 
 
 @pytest.fixture
 def sample_contact():
+    """
+    Fixture providing a sample contact model.
+
+    Returns:
+        ContactModel: A ContactModel object with the firstname "Alex", lastname "Kryvosheyin",
+                      email "alex@test.com", phonenumber "1234567890", and birthday "1987-10-24".
+    """
     return ContactModel(
         firstname="Alex",
         lastname="Kryvosheyin",
@@ -94,6 +122,14 @@ def sample_contact():
 
 @pytest.fixture(scope="module", autouse=True)
 def init_models_wrap():
+    """
+    Initializes the database models for testing.
+
+    This fixture drops all existing tables and then creates them.
+    It also creates a test user with the username "test", email "test@test.com", and role "user".
+    The fixture will automatically be run before any test that uses the client fixture.
+    """
+
     async def init_models():
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
@@ -118,6 +154,14 @@ def init_models_wrap():
 
 @pytest.fixture(scope="module")
 def client():
+    """
+    Client fixture
+
+    This fixture creates a FastAPI TestClient that is used throughout the tests.
+    It overrides the get_db dependency to use a TestingSessionLocal and commits/rollbacks
+    any changes made to the database during the test.
+    """
+
     async def override_get_db():
         async with TestingSessionLocal() as session:
             try:
@@ -133,7 +177,7 @@ def client():
 @pytest.fixture
 def auth_headers():
     """
-    Auth headers fixture
+    Fixture for auth headers
     """
 
     token = "test_token"
@@ -143,7 +187,7 @@ def auth_headers():
 @pytest.fixture
 def mock_upload_file():
     """
-    Mock upload file fixture
+    Fixture for mock upload file
     """
 
     mock = MagicMock()
@@ -154,6 +198,15 @@ def mock_upload_file():
 
 @pytest.fixture(scope="module")
 def event_loop():
+    """
+    Module-scoped fixture that provides a new asyncio event loop for tests.
+
+    This fixture is used to create and yield a new event loop for asynchronous operations
+    in tests. Once the tests are completed, the event loop is closed.
+
+    Yields:
+        asyncio.AbstractEventLoop: A newly created asyncio event loop.
+    """
 
     loop = asyncio.new_event_loop()
     yield loop
@@ -162,5 +215,16 @@ def event_loop():
 
 @pytest_asyncio.fixture()
 async def get_token():
+    """
+    Fixture that returns a valid JWT token for the test user.
+
+    This fixture uses the test user's data to create a valid JWT token. The token is
+    generated using the `create_access_token` function from the `src/services/auth.py`
+    module.
+
+    Yields:
+        str: A valid JWT token for the test user.
+
+    """
     token = await create_access_token(data={"sub": test_account["username"]})
     return token

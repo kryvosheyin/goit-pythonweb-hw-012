@@ -30,6 +30,17 @@ regular_user = {
 @pytest.mark.asyncio
 async def test_me(client, monkeypatch, auth_headers):
     # Mocking JWT decoding
+    """
+    Tests the "/users/me" endpoint for authenticated users.
+
+    Mocks the JWT decoding and user retrieval from the database.
+    Asserts that the response status is 200 and that the response
+    contains the expected user details, including email, username,
+    role, and avatar.
+    Verifies that the JWT decode and database retrieval functions
+    are called with the correct arguments.
+    """
+
     mock_jwt = MagicMock(return_value={"sub": admin_user["username"]})
     monkeypatch.setattr("src.services.auth.jwt.decode", mock_jwt)
 
@@ -61,6 +72,15 @@ async def test_me(client, monkeypatch, auth_headers):
 @pytest.mark.asyncio
 async def test_me_unauthenticated(client, monkeypatch):
     # Mocking unauthorized access
+    """
+    Tests the "/users/me" endpoint returns a 401 status code and a "Not authenticated" message
+    when the request is not authenticated.
+
+    Mocks the JWT decoding to raise an exception.
+    Asserts that the response status is 401 and that the response body is a dictionary with a "detail"
+    key containing the string "Not authenticated".
+    """
+
     mock = AsyncMock(
         side_effect=HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
