@@ -12,6 +12,13 @@ from src.conf.config import settings
 
 class DatabaseSessionManager:
     def __init__(self, url: str):
+        """
+        Init DB session manager
+
+        Args:
+            url (str): Database URL
+        """
+
         self._engine: AsyncEngine | None = create_async_engine(url)
         self._session_maker: async_sessionmaker = async_sessionmaker(
             autoflush=False, autocommit=False, bind=self._engine
@@ -19,6 +26,16 @@ class DatabaseSessionManager:
 
     @contextlib.asynccontextmanager
     async def session(self):
+        """
+        Context manager for DB session
+
+        Yields:
+            AsyncSession: DB session
+
+        Raises:
+            Exception: DB session is not initialized
+        """
+
         if self._session_maker is None:
             raise Exception("The DB session has not been initialized.")
         session = self._session_maker()
@@ -35,5 +52,12 @@ sessionmanager = DatabaseSessionManager(settings.DB_URL)
 
 
 async def get_db():
+    """
+    Get DB session
+
+    Yields:
+        AsyncSession: DB session
+    """
+
     async with sessionmanager.session() as session:
         yield session

@@ -1,3 +1,6 @@
+"""
+Configuration for the application."""
+
 from pydantic import ConfigDict, EmailStr
 from pydantic_settings import BaseSettings
 
@@ -18,6 +21,9 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool = True
     USE_CREDENTIALS: bool = True
     VALIDATE_CERTS: bool = True
+
+    REDIS_HOST: str
+    REDIS_PORT: int
 
     CLD_NAME: str
     CLD_API_KEY: int

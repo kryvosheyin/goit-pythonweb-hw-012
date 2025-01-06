@@ -22,12 +22,20 @@ conf = ConnectionConfig(
 )
 
 
-async def send_email(email: EmailStr, username: str, host: str):
+async def send_email(to_email: EmailStr, username: str, host: str) -> None:
+    """
+    Sends an email to a user to confirm their email address.
+
+    Args:
+        to_email: The email address of the user to receive the email.
+        username: The username of the user to personalize the email.
+        host: The host of the application to link the user to the verification endpoint.
+    """
     try:
-        token_verification = create_email_token({"sub": email})
+        token_verification = create_email_token({"sub": to_email})
         message = MessageSchema(
             subject="Confirm your email",
-            recipients=[email],
+            recipients=[to_email],
             template_body={
                 "host": host,
                 "username": username,
@@ -38,5 +46,35 @@ async def send_email(email: EmailStr, username: str, host: str):
 
         fm = FastMail(conf)
         await fm.send_message(message, template_name="verify_email.html")
+    except ConnectionErrors as err:
+        print(err)
+
+
+async def send_password_email(
+    to_email: EmailStr, username: str, host: str, reset_token: str
+) -> None:
+    """
+    Sends an email to a user to reset their password.
+
+    Args:
+        to_email: The email address of the user to receive the email.
+        username: The username of the user to personalize the email.
+        host: The host of the application to link the user to the verification endpoint.
+        reset_token: The token to be used for password reset.
+
+    """
+
+    try:
+        reset_link = f"{host}api/auth/confirm_password_reset/{reset_token}"
+
+        message = MessageSchema(
+            subject="Password reset requested",
+            recipients=[to_email],
+            template_body={"reset_link": reset_link, "username": username},
+            subtype=MessageType.html,
+        )
+
+        fm = FastMail(conf)
+        await fm.send_message(message, template_name="reset_password.html")
     except ConnectionErrors as err:
         print(err)
